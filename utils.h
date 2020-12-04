@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 #include <string_view>
 #include <utility>
 
@@ -38,3 +39,11 @@ std::pair<std::string_view, std::string_view> split_str_2(std::string_view str, 
     return std::make_pair(str, "");
 }
 
+bool is_number(std::string_view str) {
+    for (const auto& c : str) {
+        if (!std::isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
