@@ -29,19 +29,16 @@ int main() {
     std::string line;
     std::vector<int> seat_ids;
 
-    int highest_seat_id = 0;
-
     while(std::getline(input, line)) {
         std::string_view s = line;
         auto row = find_pos(s.substr(0, 7), 0, MAX_ROW, 'F', 'B');
         auto col = find_pos(s.substr(7, 3), 0, MAX_COL, 'L', 'R');
-        auto seat_id = row * 8 + col;
-        seat_ids.push_back(seat_id);
-        highest_seat_id = std::max(seat_id, highest_seat_id);
+        seat_ids.push_back(row * 8 + col);
     }
-    std::cout << "Part 1: " << highest_seat_id << "\n";
 
     std::sort(seat_ids.begin(), seat_ids.end());
+
+    std::cout << "Part 1: " << seat_ids.back() << "\n";
 
     for (int i = 0; i < seat_ids.size() - 1; ++i) {
         auto diff = seat_ids[i + 1] - seat_ids[i];
