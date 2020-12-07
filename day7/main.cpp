@@ -9,10 +9,10 @@
 #include <utility>
 #include <chrono>
 
-using bag_map_t = std::unordered_map<std::string, std::vector<std::pair<std::string, std::size_t>>>;
+using bag_map_t = std::unordered_map<std::string_view, std::vector<std::pair<std::string_view, std::size_t>>>;
 const char* target = "shiny gold";
 
-bool contains_bag(const std::string& container_bag, const std::string& target_bag, const bag_map_t& bag_map) {
+bool contains_bag(std::string_view container_bag, std::string_view target_bag, const bag_map_t& bag_map) {
     for (const auto& [b, n] : bag_map.at(container_bag)) {
         if (b == target_bag || contains_bag(b, target_bag, bag_map)) {
             return true;
@@ -21,7 +21,7 @@ bool contains_bag(const std::string& container_bag, const std::string& target_ba
     return false;
 }
 
-int count_bags(const std::string& container_bag, const bag_map_t& bag_map) {
+int count_bags(std::string_view container_bag, const bag_map_t& bag_map) {
     if (bag_map.at(container_bag).empty()) {
         return 0;
     }
@@ -48,22 +48,20 @@ int main() {
         auto endl = str_view.find('\n');
         auto line = str_view.substr(0, endl);
         auto pos = line.find("contain");
-        auto keys = line.substr(0, pos - 1);
-        auto splitted_keys = split_str(keys, ' ');
-        std::string key = std::string(splitted_keys[0]) + " " + std::string(splitted_keys[1]);
+        auto orig_key = line.substr(0, pos - 1);
+        auto key = orig_key.substr(0, orig_key.rfind(' '));
         auto value_str = line.substr(pos + 8, line.size() - pos - 9);  // skip over "contain ", not include the trailing '.'
-        std::vector<std::pair<std::string, std::size_t>> bag_contains;
+        std::vector<std::pair<std::string_view, std::size_t>> bag_contains;
 
         if (value_str != "no other bags") {
             auto splitted_v = split_str(value_str, ',');
 
             for (const auto& v : splitted_v) {
                 auto [n, bag_names] = split_str_2(v, ' ');
-                auto splitted_bag_names = split_str(bag_names, ' ');
-                std::string bag_name = std::string(splitted_bag_names[0]) + " " + std::string(splitted_bag_names[1]);
+                auto bag_name = bag_names.substr(0, bag_names.rfind(' '));
                 bag_contains.push_back(
                     std::make_pair(
-                        std::string(bag_name),
+                        bag_name,
                         static_cast<std::size_t>(std::stoi(std::string(n)))
                     )
                 );
