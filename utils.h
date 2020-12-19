@@ -1,7 +1,13 @@
 #include <vector>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <chrono>
+#include <iostream>
+
+using namespace std::chrono;
 
 std::string_view strip_str(std::string_view str) {
     auto pos_start = str.find_first_not_of(' ');
@@ -46,4 +52,21 @@ bool is_number(std::string_view str) {
         }
     }
     return true;
+}
+
+std::string read_file(const char* filename) {
+    std::fstream fn(filename);
+    std::stringstream buf;
+    buf << fn.rdbuf();
+    return buf.str();
+}
+
+template<typename Fn>
+void run(const Fn& fn, const char* input_file, const char* msg) {
+    auto str = read_file(input_file);
+    std::string_view s = str;
+    auto t0 = high_resolution_clock::now();
+    auto result = fn(s);
+    auto t1 = high_resolution_clock::now();
+    std::cout << msg << ": " << result << " (Lapse: " << duration_cast<nanoseconds>(t1 - t0).count() << " ns)\n";
 }
