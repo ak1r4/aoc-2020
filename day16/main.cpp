@@ -85,12 +85,6 @@ bool ticket_is_valid(const vector<int>& ticket, const vector<Rule>& rules) {
     return true;
 }
 
-void skip_lines(string_view& s, size_t n) {
-    for (size_t i = 0; i < n; ++i) {
-        s.remove_prefix(s.find('\n') + 1);
-    }
-}
-
 int main(int, char** argv) {
     auto part_1 = [](string_view s) {
         // parse rules

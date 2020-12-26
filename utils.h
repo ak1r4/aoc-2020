@@ -54,6 +54,12 @@ bool is_number(std::string_view str) {
     return true;
 }
 
+void skip_lines(std::string_view& s, std::size_t n) {
+    for (size_t i = 0; i < n; ++i) {
+        s.remove_prefix(s.find('\n') + 1);
+    }
+}
+
 std::string read_file(const char* filename) {
     std::fstream fn(filename);
     std::stringstream buf;
