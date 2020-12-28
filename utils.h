@@ -1,4 +1,5 @@
 #include <vector>
+#include <array>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -76,3 +77,68 @@ void run(const Fn& fn, const char* input_file, const char* msg) {
     auto t1 = high_resolution_clock::now();
     std::cout << msg << ": " << result << " (Lapse: " << duration_cast<nanoseconds>(t1 - t0).count() << " ns)\n";
 }
+
+template<typename T, std::size_t D, std::size_t N>
+struct Product {
+    struct iterator {
+        using value_type = std::array<T, N>;
+        using reference = value_type;
+        using iterator_category = std::input_iterator_tag;
+        using pointer = value_type*;
+        using difference_type = void;
+
+        iterator(Product* product) : product_(product) {}
+
+        value_type operator*() const { return this->product_->current_; }
+        pointer operator->() const { return &this->product_->current_; }
+
+        iterator& operator++() {
+            int i = N - 1;
+            for (; i >= 0 && this->product_->current_idxes_[i] == D - 1; --i) {}
+            if (i < 0) {
+                this->product_ = nullptr;
+            } else {
+                ++this->product_->current_idxes_[i];
+                for (++i; i < N; ++i) {
+                    this->product_->current_idxes_[i] = 0;
+                }
+                this->product_->set_current();
+            }
+            return *this;
+        }
+
+        friend bool operator==(const iterator& lhs, const iterator& rhs) {
+            return lhs.product_ == rhs.product_;
+        }
+
+        friend bool operator!=(const iterator& lhs, const iterator& rhs) {
+            return !(lhs == rhs);
+        }
+
+    private:
+        Product* product_;
+    };
+
+    Product(const std::array<T, D>& base) : base_(base) {
+        this->set_current();
+    }
+
+    iterator begin() { return iterator(this); }
+    iterator end() { return iterator(nullptr); }
+
+    void reset() { this->current_idxes_.fill(0); }
+
+    friend bool operator==(const Product& lhs, const Product& rhs) {
+        return lhs->current_idxes_ == rhs->current_idxes_;
+    }
+private:
+    std::array<int, N> current_idxes_ {0};
+    std::array<T, N> current_;
+    std::array<T, D> base_;
+
+    void set_current() {
+        for (std::size_t i = 0; i < N; ++i) {
+            this->current_[i] = this->base_[this->current_idxes_[i]];
+        }
+    }
+};
